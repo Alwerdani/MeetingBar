@@ -130,5 +130,5 @@ jobs:
               --target "$GITHUB_SHA" \
               --title "MeetingBar $TAG" \
               --prerelease \
-              --notes "Local build (ad-hoc signed, not notarized). After copying MeetingBar.app to Applications, run: xattr -dr com.apple.quarantine /Applications/MeetingBar.app"
+              --notes "Local build (ad-hoc signed, not notarized). After copying MeetingBar.app to Applications, run: /usr/bin/xattr -dr com.apple.quarantine /Applications/MeetingBar.app"
           fi
