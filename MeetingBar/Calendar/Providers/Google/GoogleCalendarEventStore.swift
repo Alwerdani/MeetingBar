@@ -47,7 +47,10 @@ final class GCEventStore: NSObject,
     // MARK: Static constants
     private static let kIssuer       = "https://accounts.google.com"
     private static let kClientID     = "\(googleClientNumber).apps.googleusercontent.com"
-    private static let kClientSecret = googleClientSecret
+    /// Google "iOS" OAuth clients (the type that supports the reversed-client-ID
+    /// redirect scheme) have no client secret; send none in that case.
+    private static let kClientSecret: String? =
+        googleClientSecret.isEmpty || googleClientSecret.hasPrefix("REPLACE_BY") ? nil : googleClientSecret
     private static let kRedirectURI  = "com.googleusercontent.apps.\(googleClientNumber):/oauthredirect"
     private static let kKeychainName = googleAuthKeychainName
 

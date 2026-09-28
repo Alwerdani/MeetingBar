@@ -115,15 +115,18 @@ jobs:
           GOOGLE_CLIENT_NUMBER: ${{ secrets.GOOGLE_CLIENT_NUMBER }}
           GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
+          # GOOGLE_CLIENT_NUMBER is the client ID without ".apps.googleusercontent.com".
+          # Google "iOS" OAuth clients have no secret, so GOOGLE_CLIENT_SECRET is optional.
           google_settings=()
-          if [ -n "${GOOGLE_CLIENT_NUMBER:-}" ] && [ -n "${GOOGLE_CLIENT_SECRET:-}" ]; then
+          if [ -n "${GOOGLE_CLIENT_NUMBER:-}" ]; then
+            client_number="${GOOGLE_CLIENT_NUMBER%.apps.googleusercontent.com}"
             google_settings=(
-              GOOGLE_CLIENT_NUMBER="$GOOGLE_CLIENT_NUMBER"
-              GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET"
+              GOOGLE_CLIENT_NUMBER="$client_number"
+              GOOGLE_CLIENT_SECRET="${GOOGLE_CLIENT_SECRET:-}"
               GOOGLE_AUTH_KEYCHAIN_NAME="com.alwerdani.MeetingBar.google-auth"
             )
           else
-            echo "::warning::GOOGLE_CLIENT_NUMBER/GOOGLE_CLIENT_SECRET not set; Google Calendar sign-in is disabled in this build."
+            echo "::warning::GOOGLE_CLIENT_NUMBER not set; Google Calendar sign-in is disabled in this build."
           fi
 
           mkdir -p build
