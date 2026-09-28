@@ -1,8 +1,16 @@
 name: Release DMG
 
-# Builds an ad-hoc signed (not notarized) MeetingBar.app, packages it as a
-# .dmg and attaches it to a GitHub release. Intended for local installs of a
-# fork; it does not use the upstream Developer ID / App Store signing.
+# Builds MeetingBar.app, packages it as a .dmg and attaches it to a GitHub
+# release.
+#
+# With these repository secrets set, the app is signed with a Developer ID
+# certificate and the DMG is notarized, so it opens on any Mac:
+#   MACOS_CERT_P12_BASE64  base64 of the exported "Developer ID Application" .p12
+#   MACOS_CERT_PASSWORD    password of that .p12
+#   APPLE_TEAM_ID          10-character team ID
+#   APPLE_ID               Apple ID email used for notarization
+#   APPLE_APP_PASSWORD     app-specific password for that Apple ID
+# Without them the build is ad-hoc signed and needs the quarantine flag removed.
 on:
   push:
     tags:
@@ -55,7 +63,53 @@ jobs:
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
-      - name: Build app (Release, ad-hoc signed)
+      - name: Import Developer ID certificate
+        id: signing
+        env:
+          MACOS_CERT_P12_BASE64: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          if [ -z "${MACOS_CERT_P12_BASE64:-}" ]; then
+            echo "::warning::MACOS_CERT_P12_BASE64 not set; building an ad-hoc signed, non-notarized DMG."
+            echo "identity=-" >> "$GITHUB_OUTPUT"
+            echo "notarize=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          keychain_password="$(openssl rand -hex 24)"
+          echo "$MACOS_CERT_P12_BASE64" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+
+          security create-keychain -p "$keychain_password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$keychain_password" "$keychain"
+          security import "$RUNNER_TEMP/cert.p12" -k "$keychain" -P "$MACOS_CERT_PASSWORD" \
+            -T /usr/bin/codesign -T /usr/bin/security
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$keychain_password" "$keychain" > /dev/null
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+          identity=$(security find-identity -v -p codesigning "$keychain" |
+            awk -F'"' '/Developer ID Application/ { print $2; exit }')
+          if [ -z "$identity" ]; then
+            echo "::error::No 'Developer ID Application' identity found in MACOS_CERT_P12_BASE64."
+            exit 1
+          fi
+          echo "Signing with: $identity"
+          echo "identity=$identity" >> "$GITHUB_OUTPUT"
+          echo "keychain=$keychain" >> "$GITHUB_OUTPUT"
+
+          if [ -n "${APPLE_ID:-}" ] && [ -n "${APPLE_APP_PASSWORD:-}" ] && [ -n "${APPLE_TEAM_ID:-}" ]; then
+            echo "notarize=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::APPLE_ID/APPLE_APP_PASSWORD/APPLE_TEAM_ID not set; skipping notarization."
+            echo "notarize=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build app (Release)
         env:
           # Optional: set these repository secrets to enable Google Calendar sign-in.
           GOOGLE_CLIENT_NUMBER: ${{ secrets.GOOGLE_CLIENT_NUMBER }}
@@ -95,7 +149,9 @@ jobs:
             "${google_settings[@]}" \
             build
 
-      - name: Create DMG
+      - name: Sign app and create DMG
+        env:
+          IDENTITY: ${{ steps.signing.outputs.identity }}
         run: |
           app="build/DerivedData/Build/Products/Release/MeetingBar.app"
           test -d "$app"
@@ -104,12 +160,19 @@ jobs:
           # Info.plist after Xcode signed it, which invalidates the signature
           # ("MeetingBar is damaged"). Re-sign inside-out: nested code first,
           # keeping each one's entitlements, then the app itself.
+          # With a Developer ID, notarization also requires the hardened
+          # runtime and a secure timestamp on every signed binary.
+          if [ "$IDENTITY" = "-" ]; then
+            sign_flags=(--timestamp=none)
+          else
+            sign_flags=(--options runtime --timestamp)
+          fi
           find "$app/Contents" -depth \( -name "*.app" -o -name "*.framework" -o -name "*.xpc" -o -name "*.dylib" \) -print0 |
             while IFS= read -r -d '' nested; do
-              codesign --force --sign - --timestamp=none \
+              codesign --force --sign "$IDENTITY" "${sign_flags[@]}" \
                 --preserve-metadata=identifier,entitlements,flags "$nested"
             done
-          codesign --force --sign - --timestamp=none \
+          codesign --force --sign "$IDENTITY" "${sign_flags[@]}" \
             --entitlements build/Local.entitlements "$app"
 
           codesign --verify --deep --strict --verbose=2 "$app"
@@ -125,6 +188,32 @@ jobs:
             -srcfolder "$staging" \
             -ov -format UDZO \
             "build/MeetingBar.dmg"
+
+          if [ "$IDENTITY" != "-" ]; then
+            codesign --force --sign "$IDENTITY" --timestamp build/MeetingBar.dmg
+          fi
+
+      - name: Notarize DMG
+        if: steps.signing.outputs.notarize == 'true'
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          xcrun notarytool submit build/MeetingBar.dmg \
+            --apple-id "$APPLE_ID" \
+            --team-id "$APPLE_TEAM_ID" \
+            --password "$APPLE_APP_PASSWORD" \
+            --wait --timeout 30m --output-format json | tee build/notary.json
+          status=$(/usr/bin/python3 -c 'import json;print(json.load(open("build/notary.json"))["status"])')
+          if [ "$status" != "Accepted" ]; then
+            id=$(/usr/bin/python3 -c 'import json;print(json.load(open("build/notary.json"))["id"])')
+            xcrun notarytool log "$id" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD" || true
+            echo "::error::Notarization status: $status"
+            exit 1
+          fi
+          xcrun stapler staple build/MeetingBar.dmg
+          xcrun stapler validate build/MeetingBar.dmg
 
       - name: Smoke test app launch
         run: |
@@ -172,7 +261,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.tag.outputs.tag }}
+          NOTARIZED: ${{ steps.signing.outputs.notarize }}
         run: |
+          if [ "$NOTARIZED" = "true" ]; then
+            notes="Signed with Developer ID and notarized by Apple. Open the DMG and drag MeetingBar to Applications."
+          else
+            notes="Local build (ad-hoc signed, not notarized). After copying MeetingBar.app to Applications, run: /usr/bin/xattr -dr com.apple.quarantine /Applications/MeetingBar.app"
+          fi
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" build/MeetingBar.dmg --clobber --repo "$GITHUB_REPOSITORY"
           else
@@ -181,5 +276,11 @@ jobs:
               --target "$GITHUB_SHA" \
               --title "MeetingBar $TAG" \
               --prerelease \
-              --notes "Local build (ad-hoc signed, not notarized). After copying MeetingBar.app to Applications, run: /usr/bin/xattr -dr com.apple.quarantine /Applications/MeetingBar.app"
+              --notes "$notes"
           fi
+
+      - name: Remove signing keychain
+        if: always() && steps.signing.outputs.keychain != ''
+        env:
+          KEYCHAIN: ${{ steps.signing.outputs.keychain }}
+        run: security delete-keychain "$KEYCHAIN" || true
