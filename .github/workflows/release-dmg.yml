@@ -83,7 +83,20 @@ jobs:
         run: |
           app="build/DerivedData/Build/Products/Release/MeetingBar.app"
           test -d "$app"
-          codesign --verify --deep --verbose=2 "$app" || true
+
+          # LaunchAtLogin's copy-helper script edits the embedded helper's
+          # Info.plist after Xcode signed it, which invalidates the signature
+          # ("MeetingBar is damaged"). Re-sign inside-out: nested code first,
+          # keeping each one's entitlements, then the app itself.
+          find "$app/Contents" -depth \( -name "*.app" -o -name "*.framework" -o -name "*.xpc" -o -name "*.dylib" \) -print0 |
+            while IFS= read -r -d '' nested; do
+              codesign --force --sign - --timestamp=none \
+                --preserve-metadata=identifier,entitlements,flags "$nested"
+            done
+          codesign --force --sign - --timestamp=none \
+            --entitlements build/Local.entitlements "$app"
+
+          codesign --verify --deep --strict --verbose=2 "$app"
 
           staging="build/dmg"
           rm -rf "$staging"
