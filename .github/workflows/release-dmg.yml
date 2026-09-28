@@ -59,7 +59,11 @@ jobs:
           elif [ "$GITHUB_REF_TYPE" = "tag" ]; then
             tag="$GITHUB_REF_NAME"
           else
+            # Re-runs get their own release instead of overwriting the previous one.
             tag="v5.0.1-local.$GITHUB_RUN_NUMBER"
+            if [ "$GITHUB_RUN_ATTEMPT" != "1" ]; then
+              tag="$tag.$GITHUB_RUN_ATTEMPT"
+            fi
           fi
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
@@ -265,12 +269,22 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.tag.outputs.tag }}
           NOTARIZED: ${{ steps.signing.outputs.notarize }}
+          HAS_GOOGLE_CLIENT: ${{ secrets.GOOGLE_CLIENT_NUMBER != '' }}
         run: |
           if [ "$NOTARIZED" = "true" ]; then
             notes="Signed with Developer ID and notarized by Apple. Open the DMG and drag MeetingBar to Applications."
           else
             notes="Local build (ad-hoc signed, not notarized). After copying MeetingBar.app to Applications, run: /usr/bin/xattr -dr com.apple.quarantine /Applications/MeetingBar.app"
           fi
+          if [ "$HAS_GOOGLE_CLIENT" = "true" ]; then
+            google="enabled"
+          else
+            google="disabled (GOOGLE_CLIENT_NUMBER secret not set)"
+          fi
+          notes="$notes
+
+          - Commit: $GITHUB_SHA
+          - Google Calendar sign-in: $google"
           if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             gh release upload "$TAG" build/MeetingBar.dmg --clobber --repo "$GITHUB_REPOSITORY"
           else
