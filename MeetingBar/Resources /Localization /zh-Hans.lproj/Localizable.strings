@@ -130,7 +130,7 @@
 "preferences_advanced_setting_warning" = "这些设置适用于高级用户。";
 "preferences_advanced_test_script_on_next_event" = "在下一个事件上测试";
 "preferences_advanced_wrong_location_button" = "明白了！";
-"preferences_advanced_wrong_location_message" = "请选择\"用户 → 资源库 → Application Scripts → leits.MeetingBar\"文件夹";
+"preferences_advanced_wrong_location_message" = "请选择\"用户 → 资源库 → Application Scripts → com.alwerdani.MeetingBar\"文件夹";
 "preferences_advanced_wrong_location_title" = "位置错误";
 "preferences_appearance_events_all_day_title" = "全天事件：";
 "preferences_appearance_events_declined_title" = "已拒绝的事件：";

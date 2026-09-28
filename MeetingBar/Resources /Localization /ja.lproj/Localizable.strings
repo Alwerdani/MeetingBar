@@ -162,7 +162,7 @@
 "preferences_advanced_edit_script" = "スクリプトを編集";
 "preferences_advanced_save_script_button" = "保存";
 "preferences_advanced_wrong_location_title" = "場所が誤っています";
-"preferences_advanced_wrong_location_message" = "User > Library → Application Scripts → leits.MeetingBar フォルダを選択してください";
+"preferences_advanced_wrong_location_message" = "User > Library → Application Scripts → com.alwerdani.MeetingBar フォルダを選択してください";
 "preferences_advanced_wrong_location_button" = "了解！";
 "preferences_advanced_regex_title" = "ミーティングリンク用のカスタム正規表現";
 "preferences_advanced_regex_add_button" = "正規表現を追加";

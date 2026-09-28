@@ -122,7 +122,7 @@
 "preferences_advanced_regex_add_button" = "Přidat regex";
 "preferences_advanced_regex_title" = "Vlastní regexy pro odkaz na schůzku";
 "preferences_advanced_wrong_location_button" = "Mám to!";
-"preferences_advanced_wrong_location_message" = "Vyberte složku Uživatel → Knihovna → Application Scripts → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Vyberte složku Uživatel → Knihovna → Application Scripts → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_title" = "Špatné umístění";
 "preferences_advanced_save_script_button" = "Uložit skript";
 "preferences_advanced_apple_script_placeholder" = "# sem napište svůj skript\ntell application \"Music\" to pause";

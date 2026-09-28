@@ -172,7 +172,7 @@
 "preferences_advanced_setting_warning" = "Estas definições destinam-se a utilizadores avançados.";
 "preferences_advanced_test_script_on_next_event" = "Testar no próximo evento";
 "preferences_advanced_wrong_location_button" = "Percebi!";
-"preferences_advanced_wrong_location_message" = "Selecione a pasta Utilizador → Biblioteca → Scripts de Aplicações → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Selecione a pasta Utilizador → Biblioteca → Scripts de Aplicações → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_title" = "Localização incorreta";
 "preferences_appearance_events_tentative_title" = "Eventos provisórios:";
 "preferences_appearance_menu_show_timeline_toggle" = "Mostrar linha do tempo visual do dia";

@@ -126,7 +126,7 @@
 "preferences_advanced_edit_script" = "스크립트 수정";
 "preferences_advanced_save_script_button" = "스크립트 저장";
 "preferences_advanced_wrong_location_title" = "잘못된 경로";
-"preferences_advanced_wrong_location_message" = "사용자 → 라이브러리 → Application Scripts → leits.MeetingBar 폴더를 선택하세요";
+"preferences_advanced_wrong_location_message" = "사용자 → 라이브러리 → Application Scripts → com.alwerdani.MeetingBar 폴더를 선택하세요";
 "preferences_advanced_wrong_location_button" = "Got it!";
 "preferences_advanced_event_regex_title" = "회의 필터링 정규식";
 "preferences_advanced_regex_title" = "회의 연결 정규식";

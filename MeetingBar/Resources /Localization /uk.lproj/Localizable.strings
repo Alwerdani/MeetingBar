@@ -155,7 +155,7 @@
 "preferences_advanced_edit_script" = "Редагувати скрипт";
 "preferences_advanced_save_script_button" = "Зберегти скрипт";
 "preferences_advanced_wrong_location_title" = "Некоректне розташування";
-"preferences_advanced_wrong_location_message" = "Будь ласка, виберіть теку User > Library > Application Scripts > leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Будь ласка, виберіть теку User > Library > Application Scripts > com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_button" = "Зрозуміло!";
 "preferences_advanced_regex_title" = "Власні regex для посилань на зустрічі";
 "preferences_advanced_regex_add_button" = "Додати regex";

@@ -152,7 +152,7 @@
 "preferences_advanced_edit_script" = "Modifica script";
 "preferences_advanced_save_script_button" = "Salva script";
 "preferences_advanced_wrong_location_title" = "Posizione sbagliata";
-"preferences_advanced_wrong_location_message" = "Selezionare la cartella Utente → Libreria → Script dell'applicazione → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Selezionare la cartella Utente → Libreria → Script dell'applicazione → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_button" = "Fatto!";
 "preferences_advanced_event_regex_title" = "Regex personalizzati per filtrare le riunioni";
 "preferences_advanced_regex_title" = "Regex personalizzati per link delle riunioni";

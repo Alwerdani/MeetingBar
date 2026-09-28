@@ -134,7 +134,7 @@
 "preferences_advanced_edit_script" = "ச்கிரிப்டைத் திருத்து";
 "preferences_advanced_save_script_button" = "ச்கிரிப்டைச் சேமிக்கவும்";
 "preferences_advanced_wrong_location_title" = "தவறான இடம்";
-"preferences_advanced_wrong_location_message" = "பயனர் → நூலகம் → பயன்பாட்டு ச்கிரிப்டுகள் → leits.meetingbar கோப்புறையைத் தேர்ந்தெடுக்கவும்";
+"preferences_advanced_wrong_location_message" = "பயனர் → நூலகம் → பயன்பாட்டு ச்கிரிப்டுகள் → com.alwerdani.MeetingBar கோப்புறையைத் தேர்ந்தெடுக்கவும்";
 "preferences_advanced_wrong_location_button" = "கிடைத்தது!";
 "preferences_advanced_event_regex_title" = "கூட்டங்களை வடிகட்ட தனிப்பயன் வழக்கவெளி";
 "preferences_advanced_regex_title" = "இணைப்பை சந்திப்பதற்கான தனிப்பயன் வழக்கவெளி";
