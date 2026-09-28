@@ -243,8 +243,8 @@ jobs:
           echo "----- app output -----"
           tail -100 build/launch.log || true
           echo "----- crash reports -----"
-          ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i meetingbar | head -1 |
-            while read -r report; do head -80 ~/Library/Logs/DiagnosticReports/"$report"; done
+          { ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i meetingbar | head -1 |
+            while read -r report; do head -80 ~/Library/Logs/DiagnosticReports/"$report"; done; } || true
           echo "----- system log -----"
           log show --last 2m --style compact \
             --predicate 'process == "MeetingBar" OR eventMessage CONTAINS "MeetingBar"' | tail -60 || true
