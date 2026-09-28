@@ -95,6 +95,18 @@ final class GCEventStore: NSObject,
             return
         }
 
+        // Builds without Google OAuth credentials keep the xcconfig placeholder,
+        // which makes the redirect URI invalid. Fail with an error, not a crash.
+        guard !googleClientNumber.hasPrefix("REPLACE_BY"),
+              let redirectURL = URL(string: Self.kRedirectURI) else {
+            throw NSError(
+                domain: "GoogleSignIn",
+                code: -2,
+                userInfo: [NSLocalizedDescriptionKey:
+                    "Google Calendar is not configured in this build (missing Google OAuth client ID)."]
+            )
+        }
+
         // discover configuration for Google issuer
         let config = try await withCheckedThrowingContinuation { cont in
             OIDAuthorizationService.discoverConfiguration(forIssuer: URL(string: Self.kIssuer)!) { cfg, err in
@@ -122,7 +134,7 @@ final class GCEventStore: NSObject,
             clientId: Self.kClientID,
             clientSecret: Self.kClientSecret,
             scopes: scopes,
-            redirectURL: URL(string: Self.kRedirectURI)!,
+            redirectURL: redirectURL,
             responseType: OIDResponseTypeCode,
             additionalParameters: extra
         )

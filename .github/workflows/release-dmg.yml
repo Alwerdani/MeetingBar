@@ -56,7 +56,22 @@ jobs:
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Build app (Release, ad-hoc signed)
+        env:
+          # Optional: set these repository secrets to enable Google Calendar sign-in.
+          GOOGLE_CLIENT_NUMBER: ${{ secrets.GOOGLE_CLIENT_NUMBER }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
+          google_settings=()
+          if [ -n "${GOOGLE_CLIENT_NUMBER:-}" ] && [ -n "${GOOGLE_CLIENT_SECRET:-}" ]; then
+            google_settings=(
+              GOOGLE_CLIENT_NUMBER="$GOOGLE_CLIENT_NUMBER"
+              GOOGLE_CLIENT_SECRET="$GOOGLE_CLIENT_SECRET"
+              GOOGLE_AUTH_KEYCHAIN_NAME="com.alwerdani.MeetingBar.google-auth"
+            )
+          else
+            echo "::warning::GOOGLE_CLIENT_NUMBER/GOOGLE_CLIENT_SECRET not set; Google Calendar sign-in is disabled in this build."
+          fi
+
           mkdir -p build
           # Ad-hoc signatures cannot carry restricted entitlements such as
           # time-sensitive notifications, so sign with a trimmed copy.
@@ -77,6 +92,7 @@ jobs:
             CODE_SIGN_IDENTITY=- \
             DEVELOPMENT_TEAM= \
             CODE_SIGN_ENTITLEMENTS="$PWD/build/Local.entitlements" \
+            "${google_settings[@]}" \
             build
 
       - name: Create DMG
