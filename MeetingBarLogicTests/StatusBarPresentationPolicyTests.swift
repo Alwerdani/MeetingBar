@@ -32,6 +32,7 @@ final class StatusBarPresentationTests: XCTestCase {
         titleFormat: StatusBarEventTitleFormat = .show,
         titleLength: Int = 55,
         timeDisplay: StatusBarTimeDisplay = .show,
+        compactCountdown: Bool = false,
         iconFormat: StatusBarIconFormat = .none,
         pendingDisplay: StatusBarParticipationDisplay = .normal,
         tentativeDisplay: StatusBarParticipationDisplay = .normal
@@ -46,7 +47,8 @@ final class StatusBarPresentationTests: XCTestCase {
                     noTitle: "No title",
                     activeEventTimeFormat: "now (%@ left)",
                     upcomingEventTimeFormat: "in %@"
-                )
+                ),
+                compactCountdown: compactCountdown
             ),
             timeDisplay: timeDisplay,
             iconFormat: iconFormat,
@@ -329,5 +331,19 @@ final class StatusBarPresentationTests: XCTestCase {
         )
 
         XCTAssertEqual(presentation.layout, .inline(showTime: false))
+    }
+
+    func testCompactCountdownForcesInlineTimeEvenWhenTimeIsHidden() {
+        let presentation = StatusBarPresenter.presentation(
+            nextEvent: event(),
+            settings: presenterSettings(timeDisplay: .hide, compactCountdown: true),
+            now: now,
+            calendar: calendar()
+        )
+
+        XCTAssertEqual(presentation.title, "")
+        XCTAssertTrue(presentation.time.hasPrefix("in "))
+        XCTAssertEqual(presentation.layout, .inline(showTime: true))
+        XCTAssertEqual(presentation.tooltip, "Weekly sync")
     }
 }

@@ -20,6 +20,13 @@ struct Bookmark: Codable, Defaults.Serializable, Hashable {
     var url: URL
 }
 
+/// A named link that opens a brand-new meeting, e.g.
+/// "Work" -> https://meet.google.com/new?authuser=1
+struct CreateMeetingLink: Codable, Defaults.Serializable, Hashable {
+    var name: String
+    var url: URL
+}
+
 struct ProcessedEvent: Codable, Defaults.Serializable, Hashable {
     var id: String
     var lastModifiedDate: Date?

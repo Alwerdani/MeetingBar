@@ -64,6 +64,7 @@ struct NotificationSettings: Equatable {
 struct MeetingSettings: Equatable {
     var createMeetingService: CreateMeetingServices
     var createMeetingServiceUrl: String
+    var createMeetingLinks: [CreateMeetingLink]
     var bookmarks: [Bookmark]
     var browsers: [Browser]
     var defaultBrowser: Browser
@@ -169,6 +170,7 @@ extension AppSettings {
             meetings: MeetingSettings(
                 createMeetingService: Defaults[.createMeetingService],
                 createMeetingServiceUrl: Defaults[.createMeetingServiceUrl],
+                createMeetingLinks: Defaults[.createMeetingLinks],
                 bookmarks: Defaults[.bookmarks],
                 browsers: Defaults[.browsers],
                 defaultBrowser: Defaults[.defaultBrowser],
@@ -241,6 +243,7 @@ extension AppSettings {
             meetings: MeetingSettings(
                 createMeetingService: .zoom,
                 createMeetingServiceUrl: "",
+                createMeetingLinks: [],
                 bookmarks: [],
                 browsers: [],
                 defaultBrowser: Browser(

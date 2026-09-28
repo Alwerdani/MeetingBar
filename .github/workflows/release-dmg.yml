@@ -1,0 +1,116 @@
+name: Release DMG
+
+# Builds an ad-hoc signed (not notarized) MeetingBar.app, packages it as a
+# .dmg and attaches it to a GitHub release. Intended for local installs of a
+# fork; it does not use the upstream Developer ID / App Store signing.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to create or update (e.g. v5.0.0-local.1)'
+        required: true
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  DEVELOPER_DIR: /Applications/Xcode_16.2.app/Contents/Developer
+
+jobs:
+  build-dmg:
+    name: Build DMG
+    runs-on: macos-15
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Select Xcode
+        run: |
+          sudo xcode-select -s "$DEVELOPER_DIR"
+          xcodebuild -version
+
+      - name: Resolve release tag
+        id: tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "${INPUT_TAG:-}" ]; then
+            tag="$INPUT_TAG"
+          else
+            tag="$GITHUB_REF_NAME"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+      - name: Build app (Release, ad-hoc signed)
+        run: |
+          mkdir -p build
+          # Ad-hoc signatures cannot carry restricted entitlements such as
+          # time-sensitive notifications, so sign with a trimmed copy.
+          cp MeetingBar/MeetingBar.entitlements build/Local.entitlements
+          /usr/libexec/PlistBuddy -c "Delete :com.apple.developer.usernotifications.time-sensitive" build/Local.entitlements || true
+
+          set -o pipefail
+          xcodebuild \
+            -project MeetingBar.xcodeproj \
+            -scheme MeetingBar \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -derivedDataPath build/DerivedData \
+            -clonedSourcePackagesDirPath build/SourcePackages \
+            -onlyUsePackageVersionsFromResolvedFile \
+            ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY=- \
+            DEVELOPMENT_TEAM= \
+            CODE_SIGN_ENTITLEMENTS="$PWD/build/Local.entitlements" \
+            build
+
+      - name: Create DMG
+        run: |
+          app="build/DerivedData/Build/Products/Release/MeetingBar.app"
+          test -d "$app"
+          codesign --verify --deep --verbose=2 "$app" || true
+
+          staging="build/dmg"
+          rm -rf "$staging"
+          mkdir -p "$staging"
+          cp -R "$app" "$staging/"
+          ln -s /Applications "$staging/Applications"
+
+          hdiutil create \
+            -volname "MeetingBar" \
+            -srcfolder "$staging" \
+            -ov -format UDZO \
+            "build/MeetingBar.dmg"
+
+      - name: Upload DMG artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: MeetingBar-dmg
+          path: build/MeetingBar.dmg
+          retention-days: 30
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" build/MeetingBar.dmg --clobber --repo "$GITHUB_REPOSITORY"
+          else
+            gh release create "$TAG" build/MeetingBar.dmg \
+              --repo "$GITHUB_REPOSITORY" \
+              --target "$GITHUB_SHA" \
+              --title "MeetingBar $TAG" \
+              --prerelease \
+              --notes "Local build (ad-hoc signed, not notarized). After copying MeetingBar.app to Applications, run: xattr -dr com.apple.quarantine /Applications/MeetingBar.app"
+          fi

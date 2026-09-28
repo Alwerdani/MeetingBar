@@ -61,6 +61,9 @@ struct MenuBuilder {
     private func buildMeetingControlSection(event: MBEvent) -> [NSMenuItem] {
         var items: [NSMenuItem] = []
         items.append(makeMeetingSummaryItem(for: event))
+        if event.startDate <= now, event.endDate > now, !isDismissed(event) {
+            items.append(makeMarkAsDoneItem(for: event))
+        }
         items.append(makeMeetingActionsItem(for: event))
         items.append(contentsOf: buildProviderWarningItems())
         return items
@@ -141,6 +144,19 @@ struct MenuBuilder {
         let actionItem = NSMenuItem(title: actionTitle, action: action, keyEquivalent: "")
         actionItem.target = target
         return [statusItem(title: title), actionItem]
+    }
+
+    /// Lets the user finish a running meeting early: dismissing it moves the
+    /// status bar on to the next event.
+    private func makeMarkAsDoneItem(for event: MBEvent) -> NSMenuItem {
+        let item = NSMenuItem(
+            title: "status_bar_control_mark_as_done".loco(),
+            action: #selector(StatusBarItemController.markMeetingAsDone(sender:)),
+            keyEquivalent: ""
+        )
+        item.target = target
+        item.representedObject = event
+        return item
     }
 
     private func makeMeetingActionsItem(for event: MBEvent) -> NSMenuItem {
@@ -409,6 +425,9 @@ struct MenuBuilder {
         createEventItem.setShortcut(for: .createMeetingShortcut)
         items.append(createEventItem)
 
+        // MENU ITEM: Extra named create-meeting links (e.g. one per Google account)
+        items.append(contentsOf: makeCreateMeetingLinkItems())
+
         // MENU ITEM: Quick actions menu
         let quickActionsItem = NSMenuItem(
             title: "status_bar_quick_actions".loco(),
@@ -479,6 +498,19 @@ struct MenuBuilder {
         refrsehItem.target = target
 
         return items
+    }
+
+    private func makeCreateMeetingLinkItems() -> [NSMenuItem] {
+        state.meetings.createMeetingLinks.map { link in
+            let item = NSMenuItem(
+                title: "status_bar_section_create_meeting_with".loco(link.name),
+                action: #selector(StatusBarItemController.createMeetingWithLinkAction(sender:)),
+                keyEquivalent: ""
+            )
+            item.target = target
+            item.representedObject = link
+            return item
+        }
     }
 
     // MARK: Preferences section -----------------------------------------------

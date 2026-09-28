@@ -93,7 +93,7 @@ final class StatusBarItemController {
     private func setupDefaultsObservers() {
         // For all these keys, just redraw:
         Defaults.publisher(
-            keys: .statusbarEventTitleLength, .eventTimeFormat,
+            keys: .statusbarEventTitleLength, .eventTimeFormat, .statusbarCompactCountdown,
             .eventTitleIconFormat, .showEventMaxTimeUntilEventThreshold,
             .showEventMaxTimeUntilEventEnabled, .showEventDetails,
             .shortenEventTitle, .menuEventTitleLength,
@@ -331,6 +331,20 @@ final class StatusBarItemController {
         createMeeting()
     }
 
+    @objc func createMeetingWithLinkAction(sender: NSMenuItem) {
+        if let link = sender.representedObject as? CreateMeetingLink {
+            createMeeting(with: link)
+        }
+    }
+
+    @objc
+    func markMeetingAsDone(sender: NSMenuItem) {
+        if let event = sender.representedObject as? MBEvent {
+            dismiss(event: event)
+            AppMessageCenter.shared.post(.meetingDismissed(title: event.title))
+        }
+    }
+
     @objc
     func joinNextMeeting() {
         if let nextEvent = events.nextEvent() {
@@ -511,7 +525,7 @@ enum StatusBarTitleRenderer {
         case .inline(let showTime):
             var eventTitle = presentation.title
             if showTime {
-                eventTitle += " " + presentation.time
+                eventTitle += eventTitle.isEmpty ? presentation.time : " " + presentation.time
             }
             return NSAttributedString(
                 string: eventTitle,

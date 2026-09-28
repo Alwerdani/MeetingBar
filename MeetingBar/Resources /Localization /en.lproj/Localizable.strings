@@ -133,6 +133,8 @@
 "preferences_appearance_status_bar_time_show_value" = "show";
 "preferences_appearance_status_bar_time_show_under_title_value" = "show under title";
 "preferences_appearance_status_bar_time_hide_value" = "hide";
+"preferences_appearance_status_bar_compact_countdown_toggle" = "Compact countdown";
+"preferences_appearance_status_bar_compact_countdown_help" = "Hide the event title and show only \"in 10m\" before a meeting or \"10m left\" while it runs. Pick \"No icon\" above for the smallest status bar item.";
 "preferences_appearance_status_bar_ongoing_title" = "Ongoing event visibility:";
 "preferences_appearance_status_bar_ongoing_time_immediate_value" = "hide after start";
 "preferences_appearance_status_bar_ongoing_time_ten_after_value" = "hide 10 min  after start";
@@ -176,6 +178,14 @@
 "preferences_services_create_meeting_title" = "Create meetings via";
 "preferences_services_create_meeting_custom_url_value" = "Custom URL";
 "preferences_services_create_meeting_custom_url_placeholder" = "Please enter a valid URL (with http:// or https://)";
+"preferences_services_create_meeting_google_account_title" = "Google account";
+"preferences_services_create_meeting_google_account_placeholder" = "e.g. 1 or you@company.com";
+"preferences_services_create_meeting_google_account_help" = "Creates meetings with this Google account (adds ?authuser=… to the link). Leave empty to use the browser's default account.";
+"preferences_create_meeting_links_title" = "Extra create-meeting links";
+"preferences_create_meeting_links_help" = "Each link gets its own \"Create meeting: <name>\" item in the menu, e.g. Work → https://meet.google.com/new?authuser=1";
+"preferences_create_meeting_links_name_placeholder" = "Name";
+"preferences_create_meeting_links_url_placeholder" = "https://meet.google.com/new?authuser=1";
+"preferences_create_meeting_links_add_button" = "Add";
 "preferences_services_google_meet_tip" = "Tip: Google Meet supports choosing account in the URL, e.g. https://meet.google.com/new?authuser=1";
 "preferences_services_create_meeting_browser_title" = "Use web browser";
 
@@ -259,6 +269,8 @@
 "notification_all_dismissals_removed_title" = "Removed all dismissals";
 "notification_all_dismissals_removed_message" = "All dismissed meetings are back in action";
 "status_bar_section_join_create_meeting" = "Create meeting";
+"status_bar_section_create_meeting_with" = "Create meeting: %@";
+"status_bar_control_mark_as_done" = "Mark as done";
 "status_bar_control_actions" = "More actions";
 "status_bar_control_current_meeting" = "Current meeting";
 "status_bar_control_next_meeting" = "Next meeting";
@@ -308,6 +320,7 @@
 "status_bar_no_title" = "No title";
 "status_bar_event_status_now" = "now (%@ left)";
 "status_bar_event_status_in" = "in %@";
+"status_bar_event_status_compact_left" = "%@ left";
 "status_bar_error_apple_script_title" = "AppleScript error";
 "status_bar_error_link_missed_title" = "Ouch! Can't join the %@";
 "status_bar_error_link_missed_message" = "Link not found, or your meeting service is not yet supported";

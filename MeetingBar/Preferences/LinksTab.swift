@@ -14,6 +14,8 @@ struct LinksTab: View {
     @Default(.defaultBrowser) var defaultBrowser
     @Default(.createMeetingServiceUrl) var createMeetingServiceUrl
     @Default(.createMeetingService) var createMeetingService
+    @Default(.createMeetingGoogleAccount) var createMeetingGoogleAccount
+    @Default(.createMeetingLinks) var createMeetingLinks
     @Default(.browsers) var allBrowser
 
     @Default(.bookmarks) var bookmarks
@@ -23,6 +25,9 @@ struct LinksTab: View {
     @State var showingAddBookmarkModal = false
     @State private var showingAlert = false
     @State private var bookmark: Bookmark?
+
+    @State private var newCreateMeetingLinkName = ""
+    @State private var newCreateMeetingLinkURL = ""
 
     private var defaultBrowserOptions: [Browser] {
         BrowserPickerOptions.make(
@@ -104,6 +109,19 @@ struct LinksTab: View {
                         .font(.caption)
                 }
 
+                if createMeetingService == CreateMeetingServices.meet {
+                    HStack {
+                        Text("preferences_services_create_meeting_google_account_title".loco())
+                        TextField(
+                            "preferences_services_create_meeting_google_account_placeholder".loco(),
+                            text: $createMeetingGoogleAccount
+                        ).textFieldStyle(RoundedBorderTextFieldStyle())
+                    }
+                    Text("preferences_services_create_meeting_google_account_help".loco())
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
+                }
+
                 Picker(
                     "preferences_services_create_meeting_browser_title".loco(),
                     selection: $browserForCreateMeeting
@@ -111,6 +129,44 @@ struct LinksTab: View {
                     ForEach(createMeetingBrowserOptions, id: \.self) { (browser: Browser) in
                         Text(browser.name).tag(browser)
                     }
+                }
+            }
+
+            Section(header: Text("preferences_create_meeting_links_title".loco())) {
+                Text("preferences_create_meeting_links_help".loco())
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                ForEach(createMeetingLinks, id: \.self) { link in
+                    HStack {
+                        Text("\(link.name): \(link.url.absoluteString)")
+                            .lineLimit(1)
+                            .truncationMode(.middle)
+                        Spacer()
+                        Button(action: {
+                            createMeetingLinks.removeAll { $0 == link }
+                        }) {
+                            Image(
+                                nsImage: NSImage(
+                                    named: NSImage.stopProgressFreestandingTemplateName)!)
+                        }.buttonStyle(PlainButtonStyle())
+                    }
+                }.onMove { source, destination in
+                    createMeetingLinks.move(fromOffsets: source, toOffset: destination)
+                }
+                HStack {
+                    TextField(
+                        "preferences_create_meeting_links_name_placeholder".loco(),
+                        text: $newCreateMeetingLinkName
+                    )
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    .frame(maxWidth: 120)
+                    TextField(
+                        "preferences_create_meeting_links_url_placeholder".loco(),
+                        text: $newCreateMeetingLinkURL
+                    )
+                    .textFieldStyle(RoundedBorderTextFieldStyle())
+                    Button("preferences_create_meeting_links_add_button".loco(), action: addCreateMeetingLink)
+                        .disabled(newCreateMeetingLink == nil)
                 }
             }
 
@@ -163,6 +219,25 @@ struct LinksTab: View {
 
     func clickConfigureBrowser() {
         showBrowserConfiguration.toggle()
+    }
+
+    private var newCreateMeetingLink: CreateMeetingLink? {
+        let name = newCreateMeetingLinkName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let rawURL = newCreateMeetingLinkURL.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !name.isEmpty,
+              let url = URL(string: rawURL),
+              let scheme = url.scheme?.lowercased(),
+              scheme == "http" || scheme == "https",
+              url.host != nil
+        else { return nil }
+        return CreateMeetingLink(name: name, url: url)
+    }
+
+    private func addCreateMeetingLink() {
+        guard let link = newCreateMeetingLink else { return }
+        createMeetingLinks.append(link)
+        newCreateMeetingLinkName = ""
+        newCreateMeetingLinkURL = ""
     }
 }
 

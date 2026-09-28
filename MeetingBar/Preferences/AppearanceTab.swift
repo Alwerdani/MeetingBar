@@ -144,6 +144,7 @@ struct StatusBarSection: View {
     @Default(.eventTitleIconFormat) var eventTitleIconFormat
     @Default(.eventTitleFormat) var eventTitleFormat
     @Default(.eventTimeFormat) var eventTimeFormat
+    @Default(.statusbarCompactCountdown) var statusbarCompactCountdown
     @Default(.statusbarEventTitleLength) var statusbarEventTitleLength
     @Default(.showEventMaxTimeUntilEventThreshold) var showEventMaxTimeUntilEventThreshold
     @Default(.showEventMaxTimeUntilEventEnabled) var showEventMaxTimeUntilEventEnabled
@@ -197,6 +198,7 @@ struct StatusBarSection: View {
                 Text("preferences_appearance_status_bar_title_hide_value".loco())
                     .tag(EventTitleFormat.none)
             }
+            .disabled(statusbarCompactCountdown)
 
             HStack {
                 Spacer()
@@ -214,7 +216,7 @@ struct StatusBarSection: View {
                 .fixedSize()
             }
             .padding(.leading, 16)
-            .disabled(eventTitleFormat != .show)
+            .disabled(eventTitleFormat != .show || statusbarCompactCountdown)
 
             Picker(
                 preferenceLabel("preferences_appearance_status_bar_time_title"),
@@ -224,6 +226,15 @@ struct StatusBarSection: View {
                     Text(option.titleKey.loco()).tag(option.format)
                 }
             }
+            .disabled(statusbarCompactCountdown)
+
+            Toggle(
+                preferenceLabel("preferences_appearance_status_bar_compact_countdown_toggle"),
+                isOn: $statusbarCompactCountdown
+            )
+            Text("preferences_appearance_status_bar_compact_countdown_help".loco())
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
 
         Section {
