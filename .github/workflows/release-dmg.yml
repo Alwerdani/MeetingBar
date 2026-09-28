@@ -110,6 +110,41 @@ jobs:
             -ov -format UDZO \
             "build/MeetingBar.dmg"
 
+      - name: Smoke test app launch
+        run: |
+          # Install from the DMG exactly like a user would, then launch and
+          # make sure the process stays alive.
+          mount_dir=$(mktemp -d)
+          hdiutil attach build/MeetingBar.dmg -nobrowse -mountpoint "$mount_dir"
+          rm -rf /Applications/MeetingBar.app
+          cp -R "$mount_dir/MeetingBar.app" /Applications/
+          hdiutil detach "$mount_dir"
+
+          codesign -dv --verbose=2 /Applications/MeetingBar.app 2>&1 || true
+          spctl -a -vv /Applications/MeetingBar.app 2>&1 || true
+
+          /Applications/MeetingBar.app/Contents/MacOS/MeetingBar > build/launch.log 2>&1 &
+          pid=$!
+          sleep 20
+          if kill -0 "$pid" 2>/dev/null; then
+            echo "MeetingBar is still running after 20s"
+            kill "$pid" || true
+            status=0
+          else
+            wait "$pid"; code=$?
+            echo "::error::MeetingBar exited during launch (exit code $code)"
+            status=1
+          fi
+          echo "----- app output -----"
+          tail -100 build/launch.log || true
+          echo "----- crash reports -----"
+          ls -t ~/Library/Logs/DiagnosticReports/ 2>/dev/null | grep -i meetingbar | head -1 |
+            while read -r report; do head -80 ~/Library/Logs/DiagnosticReports/"$report"; done
+          echo "----- system log -----"
+          log show --last 2m --style compact \
+            --predicate 'process == "MeetingBar" OR eventMessage CONTAINS "MeetingBar"' | tail -60 || true
+          exit $status
+
       - name: Upload DMG artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
