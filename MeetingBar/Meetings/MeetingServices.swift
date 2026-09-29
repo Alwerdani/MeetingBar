@@ -68,8 +68,31 @@ func createMeeting() {
     }
 
     if let descriptor = createMeetingDescriptor(for: service) {
-        openMeetingURL(descriptor.meetingService, descriptor.url, browser)
+        var url = descriptor.url
+        if service == .meet {
+            url = googleMeetCreateURL(url, account: Defaults[.createMeetingGoogleAccount])
+        }
+        openMeetingURL(descriptor.meetingService, url, browser)
     }
+}
+
+/// Opens one of the user's extra named create-meeting links.
+func createMeeting(with link: CreateMeetingLink) {
+    let service: MeetingServices? = link.url.host?.lowercased() == "meet.google.com" ? .meet : nil
+    openMeetingURL(service, link.url, Defaults[.browserForCreateMeeting])
+}
+
+/// Adds Google's `authuser` query parameter so the meeting is created with a
+/// specific Google account (an account index like "1" or an email address).
+func googleMeetCreateURL(_ url: URL, account: String) -> URL {
+    let account = account.trimmingCharacters(in: .whitespacesAndNewlines)
+    guard !account.isEmpty,
+          var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+    else { return url }
+    var queryItems = (components.queryItems ?? []).filter { $0.name != "authuser" }
+    queryItems.append(URLQueryItem(name: "authuser", value: account))
+    components.queryItems = queryItems
+    return components.url ?? url
 }
 
 func openMeetingURL(

@@ -120,7 +120,7 @@
 "status_bar_section_today" = "Aujourd'hui";
 "preferences_advanced_regex_edit_button" = "modifier";
 "preferences_advanced_wrong_location_button" = "Compris !";
-"preferences_advanced_wrong_location_message" = "Veuillez sélectionner le dossier Utilisateur → Bibliothèque → Scripts d'application → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Veuillez sélectionner le dossier Utilisateur → Bibliothèque → Scripts d'application → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_title" = "Mauvais emplacement";
 "preferences_advanced_save_script_button" = "Enregistrer le script";
 "preferences_advanced_apple_script_placeholder" = "# écrire votre script ici\ntell application \"Music\" to pause";

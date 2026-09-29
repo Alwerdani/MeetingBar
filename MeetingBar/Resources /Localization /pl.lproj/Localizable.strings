@@ -152,7 +152,7 @@
 "preferences_advanced_edit_script" = "Edytuj skrypt";
 "preferences_advanced_save_script_button" = "Zapisz skrypt";
 "preferences_advanced_wrong_location_title" = "Nieprawidłowa lokalizacja";
-"preferences_advanced_wrong_location_message" = "Proszę wybrać folder User → Library → Application Scripts → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Proszę wybrać folder User → Library → Application Scripts → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_button" = "Mam to!";
 "preferences_advanced_regex_title" = "Własne regexy dla linku spotkania";
 "preferences_advanced_regex_add_button" = "Dodaj regex";

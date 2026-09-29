@@ -66,6 +66,9 @@ extension Defaults.Keys {
     static let statusbarEventTitleLength = Key<Int>(
         "statusbarEventTitleLength", default: statusbarEventTitleLengthLimits.max)
 
+    /// Show only a short countdown ("in 10m" / "10m left") instead of the event title.
+    static let statusbarCompactCountdown = Key<Bool>("statusbarCompactCountdown", default: false)
+
     static let hideMeetingTitle = Key<Bool>("hideMeetingTitle", default: false)
     static let dismissedEvents = Key<[ProcessedEvent]>("dismissedEvents", default: [])
 
@@ -132,6 +135,14 @@ extension Defaults.Keys {
 
     // custom url to create meetings
     static let createMeetingServiceUrl = Key<String>("createMeetingServiceUrl", default: "")
+
+    // Google account used when creating Google Meet meetings (`authuser` value:
+    // an account index like "1" or an email address). Empty = browser default.
+    static let createMeetingGoogleAccount = Key<String>("createMeetingGoogleAccount", default: "")
+
+    // Extra named create-meeting links shown in the menu next to "Create meeting",
+    // e.g. one Google Meet link per Google account.
+    static let createMeetingLinks = Key<[CreateMeetingLink]>("createMeetingLinks", default: [])
 
     static let meetBrowser = Key<Browser>("meetBrowser", default: systemDefaultBrowser)
     static let zoomBrowser = Key<Browser>("zoomBrowser", default: systemDefaultBrowser)

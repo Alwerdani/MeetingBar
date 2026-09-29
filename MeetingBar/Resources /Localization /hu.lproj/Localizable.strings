@@ -102,7 +102,7 @@
 "preferences_bookmarks_new_bookmark_service" = "Szolgáltatás";
 "preferences_bookmarks_new_bookmark_error_title" = "Nem adhat hozzá könyvjelzőt";
 "preferences_calendars_select_calendars_title" = "Válasz ki a naptárakat, hogy megmutassa az eseményeket az állapotsávban";
-"preferences_advanced_wrong_location_message" = "Kérjük, válassza ki a Felhasználó → Könyvtár → Alkalmazás Scriptek → leits.MeetingBar mappa";
+"preferences_advanced_wrong_location_message" = "Kérjük, válassza ki a Felhasználó → Könyvtár → Alkalmazás Scriptek → com.alwerdani.MeetingBar mappa";
 "window_title_preferences" = "MeetingBar Preferenciák";
 "preferences_configure_browsers_modal_add_browser_name" = "Név";
 "preferences_general_shortcut_join_from_clipboard" = "Csatlakozás a találkozóhoz vágólapról:";

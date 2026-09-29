@@ -26,7 +26,8 @@ env:
 jobs:
   dependency-review:
     name: Dependency Review
-    if: github.event_name == 'pull_request'
+    # Needs the repository's Dependency graph, which forks have off by default.
+    if: github.event_name == 'pull_request' && github.repository == 'leits/MeetingBar'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:

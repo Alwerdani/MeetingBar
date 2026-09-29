@@ -152,7 +152,7 @@
 "preferences_advanced_edit_script" = "Uredi skripta";
 "preferences_advanced_save_script_button" = "Spremi skripta";
 "preferences_advanced_wrong_location_title" = "Krivo mjesto";
-"preferences_advanced_wrong_location_message" = "Odaberi mapu Korisnici → Medijateka → Application Scripts → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Odaberi mapu Korisnici → Medijateka → Application Scripts → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_button" = "Razumijem!";
 "preferences_advanced_regex_title" = "Prilagođen regularni izrazi za poveznicu sastanka";
 "preferences_advanced_regex_add_button" = "Dodaj regularni izraz";

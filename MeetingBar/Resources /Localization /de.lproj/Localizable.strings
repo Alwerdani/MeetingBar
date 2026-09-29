@@ -174,7 +174,7 @@
 "preferences_advanced_regex_add_button" = "Regex hinzufügen";
 "preferences_advanced_regex_title" = "Benutzerdefinierte reguläre Ausdrücke für Meeting-Links";
 "preferences_advanced_wrong_location_button" = "Verstanden!";
-"preferences_advanced_wrong_location_message" = "Bitte wählen Sie den Ordner Benutzer → Bibliothek → Anwendungsskripte → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Bitte wählen Sie den Ordner Benutzer → Bibliothek → Anwendungsskripte → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_title" = "Falscher Ort";
 "preferences_advanced_save_script_button" = "Skript speichern";
 "preferences_advanced_apple_script_placeholder" = "# Schreibe Dein Skript hier\ntell application \"Music\" to pause";

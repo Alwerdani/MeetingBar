@@ -199,7 +199,7 @@
 "preferences_advanced_test_script_on_next_event" = "Vyskúšať pri nasledujúcej udalosti";
 "preferences_advanced_edit_script" = "Upraviť skript";
 "preferences_advanced_wrong_location_title" = "Nesprávne umiestnenie";
-"preferences_advanced_wrong_location_message" = "Vyber priečinok Užívateľ → Knižnica → Aplication Scripts → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Vyber priečinok Užívateľ → Knižnica → Aplication Scripts → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_button" = "Rozumiem!";
 "preferences_advanced_event_regex_title" = "Vlastné regexy na filtrovanie stretnutí";
 "preferences_advanced_regex_add_button" = "Pridať regex";

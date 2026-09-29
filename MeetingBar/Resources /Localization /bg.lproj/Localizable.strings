@@ -161,7 +161,7 @@
 "preferences_advanced_edit_script" = "Редактирай скрипта";
 "preferences_advanced_save_script_button" = "Запази скрипта";
 "preferences_advanced_wrong_location_title" = "Грешно местоположение";
-"preferences_advanced_wrong_location_message" = "Избери папката User → Library → Application Scripts → leits.MeetingBar";
+"preferences_advanced_wrong_location_message" = "Избери папката User → Library → Application Scripts → com.alwerdani.MeetingBar";
 "preferences_advanced_wrong_location_button" = "Разбрах!";
 "preferences_advanced_event_regex_title" = "Персонализирани регулярни изрази за филтриране на срещи";
 "preferences_advanced_regex_title" = "Персонализирани регулярни изрази за връзки към срещи";

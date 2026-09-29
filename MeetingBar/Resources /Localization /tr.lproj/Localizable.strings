@@ -104,7 +104,7 @@
 "preferences_calendars_provider_gcalendar_change_account" = "Google Hesabını Değiştir";
 "preferences_advanced_apple_script_checkmark" = "Toplantıya katıldığında AppleScript çalıştır";
 "preferences_advanced_save_script_button" = "Scripti kaydet";
-"preferences_advanced_wrong_location_message" = "Lütfen User → Library → Application Scripts → leits.MeetingBar klasörünü seçin";
+"preferences_advanced_wrong_location_message" = "Lütfen User → Library → Application Scripts → com.alwerdani.MeetingBar klasörünü seçin";
 "preferences_advanced_wrong_location_button" = "Anladım!";
 "preferences_advanced_event_regex_title" = "Toplantıları filtrelemek için özel regex betikleri";
 "preferences_advanced_regex_add_button" = "Regex ekle";

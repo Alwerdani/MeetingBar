@@ -1368,6 +1368,21 @@ final class StatusBarTitleRendererTests: BaseTestCase {
         XCTAssertNotNil(title.attribute(.underlineStyle, at: 0, effectiveRange: nil))
     }
 
+    func test_inlineTimeWithoutTitleHasNoLeadingSpace() {
+        let presentation = StatusBarPresentation(
+            mode: .nextEvent,
+            title: "",
+            time: "in 5m",
+            tooltip: "Weekly sync",
+            icon: .none,
+            layout: .inline(showTime: true),
+            titleStyle: .normal,
+            removeDeliveredNotifications: false
+        )
+
+        XCTAssertEqual(StatusBarTitleRenderer.attributedTitle(for: presentation).string, "in 5m")
+    }
+
     func test_noneLayoutRendersEmptyTitle() {
         let title = StatusBarTitleRenderer.attributedTitle(
             for: makePresentation(layout: .none)
@@ -1687,5 +1702,86 @@ final class StatusBarItemControllerPresentationTests: BaseTestCase {
         )
         event.participationStatus = participationStatus
         return event
+    }
+}
+
+@MainActor
+final class MenuBuilderMarkAsDoneAndCreateLinksTests: BaseTestCase {
+    private class Dummy: NSObject {}
+
+    private func controlSection(for event: MBEvent, now: Date) -> [NSMenuItem] {
+        var state = StatusBarMenuState()
+        state.settings = .empty
+        state.nextEvent = event
+        return MenuBuilder(target: Dummy(), state: state, now: now)
+            .buildMeetingControlSection()
+    }
+
+    func testRunningMeetingOffersMarkAsDone() throws {
+        let now = Date()
+        let event = makeFakeEvent(
+            id: "running",
+            start: now.addingTimeInterval(-600),
+            end: now.addingTimeInterval(600),
+            withLink: true
+        )
+
+        let item = try XCTUnwrap(controlSection(for: event, now: now).first {
+            $0.action == #selector(StatusBarItemController.markMeetingAsDone(sender:))
+        })
+        XCTAssertEqual(item.title, "status_bar_control_mark_as_done".loco())
+        XCTAssertEqual((item.representedObject as? MBEvent)?.id, event.id)
+    }
+
+    func testUpcomingMeetingDoesNotOfferMarkAsDone() {
+        let now = Date()
+        let event = makeFakeEvent(
+            id: "upcoming",
+            start: now.addingTimeInterval(600),
+            end: now.addingTimeInterval(1200),
+            withLink: true
+        )
+
+        XCTAssertFalse(controlSection(for: event, now: now).contains {
+            $0.action == #selector(StatusBarItemController.markMeetingAsDone(sender:))
+        })
+    }
+
+    func testJoinSectionListsExtraCreateMeetingLinks() throws {
+        var state = StatusBarMenuState()
+        state.settings = .empty
+        let link = CreateMeetingLink(
+            name: "Work", url: URL(string: "https://meet.google.com/new?authuser=1")!)
+        state.settings.meetings.createMeetingLinks = [link]
+
+        let items = MenuBuilder(target: Dummy(), state: state)
+            .buildJoinSection(nextEvent: nil)
+        let linkItem = try XCTUnwrap(items.first {
+            $0.action == #selector(StatusBarItemController.createMeetingWithLinkAction(sender:))
+        })
+
+        XCTAssertEqual(linkItem.title, "status_bar_section_create_meeting_with".loco("Work"))
+        XCTAssertEqual(linkItem.representedObject as? CreateMeetingLink, link)
+    }
+}
+
+final class GoogleMeetCreateURLTests: XCTestCase {
+    private let base = URL(string: "https://meet.google.com/new")!
+
+    func testEmptyAccountKeepsURL() {
+        XCTAssertEqual(googleMeetCreateURL(base, account: "  "), base)
+    }
+
+    func testAccountIndexAddsAuthUser() {
+        XCTAssertEqual(
+            googleMeetCreateURL(base, account: "1").absoluteString,
+            "https://meet.google.com/new?authuser=1")
+    }
+
+    func testEmailAccountReplacesExistingAuthUser() {
+        let url = URL(string: "https://meet.google.com/new?authuser=0")!
+        XCTAssertEqual(
+            googleMeetCreateURL(url, account: "me@example.com").absoluteString,
+            "https://meet.google.com/new?authuser=me@example.com")
     }
 }

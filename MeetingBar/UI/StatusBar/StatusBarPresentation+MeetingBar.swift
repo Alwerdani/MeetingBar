@@ -115,7 +115,9 @@ extension StatusBarTitleLabels {
             genericMeetingTitle: "general_meeting".loco(),
             noTitle: "status_bar_no_title".loco(),
             activeEventTimeFormat: "status_bar_event_status_now".loco(),
-            upcomingEventTimeFormat: "status_bar_event_status_in".loco()
+            upcomingEventTimeFormat: "status_bar_event_status_in".loco(),
+            compactActiveEventTimeFormat: "status_bar_event_status_compact_left".loco(),
+            compactUpcomingEventTimeFormat: "status_bar_event_status_in".loco()
         )
     }
 }
@@ -125,7 +127,8 @@ extension StatusBarTitleSettings {
         StatusBarTitleSettings(
             titleFormat: StatusBarEventTitleFormat(Defaults[.eventTitleFormat]),
             titleLength: Defaults[.statusbarEventTitleLength],
-            labels: .current
+            labels: .current,
+            compactCountdown: Defaults[.statusbarCompactCountdown]
         )
     }
 }

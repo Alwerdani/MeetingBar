@@ -12,7 +12,8 @@ final class StatusBarTitlePolicyTests: XCTestCase {
 
     private func settings(
         titleFormat: StatusBarEventTitleFormat = .show,
-        titleLength: Int = 55
+        titleLength: Int = 55,
+        compactCountdown: Bool = false
     ) -> StatusBarTitleSettings {
         StatusBarTitleSettings(
             titleFormat: titleFormat,
@@ -22,7 +23,8 @@ final class StatusBarTitlePolicyTests: XCTestCase {
                 noTitle: "No title",
                 activeEventTimeFormat: "now (%@ left)",
                 upcomingEventTimeFormat: "in %@"
-            )
+            ),
+            compactCountdown: compactCountdown
         )
     }
 
@@ -106,5 +108,22 @@ final class StatusBarTitlePolicyTests: XCTestCase {
         let result = StatusBarTitlePolicy.shortenTitle("Weekly sync", limit: 0, noTitle: "No title")
 
         XCTAssertEqual(result, "...")
+    }
+
+    func testCompactCountdownDropsTitleForUpcomingEvent() {
+        let result = text(startOffset: 600, endOffset: 2400, settings: settings(compactCountdown: true))
+
+        XCTAssertEqual(result.title, "")
+        XCTAssertEqual(result.time, "in " + StatusBarTitlePolicy.formattedTimeLeft(
+            from: now, to: now.addingTimeInterval(660), calendar: calendar()))
+    }
+
+    func testCompactCountdownShowsTimeLeftForActiveEvent() {
+        let result = text(startOffset: -300, endOffset: 900, settings: settings(compactCountdown: true))
+
+        XCTAssertEqual(result.title, "")
+        XCTAssertTrue(result.isActiveEvent)
+        XCTAssertEqual(result.time, StatusBarTitlePolicy.formattedTimeLeft(
+            from: now, to: now.addingTimeInterval(960), calendar: calendar()) + " left")
     }
 }

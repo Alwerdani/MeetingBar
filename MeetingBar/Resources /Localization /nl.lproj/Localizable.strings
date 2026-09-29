@@ -142,7 +142,7 @@
 "preferences_advanced_edit_script" = "Script bewerken";
 "preferences_advanced_save_script_button" = "Bewaar script";
 "preferences_advanced_wrong_location_title" = "Verkeerde locatie";
-"preferences_advanced_wrong_location_message" = "Kies alsjeblieft de Gebruiker → Bibliotheek → Application Scripts → leits.MeetingBar map";
+"preferences_advanced_wrong_location_message" = "Kies alsjeblieft de Gebruiker → Bibliotheek → Application Scripts → com.alwerdani.MeetingBar map";
 "preferences_advanced_event_regex_title" = "Aangepaste regexes om meeting uit te filteren";
 "preferences_advanced_regex_title" = "Aangepaste regexes voor meetinglink";
 "preferences_advanced_regex_add_button" = "Regex toevoegen";

@@ -155,16 +155,22 @@ enum StatusBarPresenter {
             assets: settings.iconAssets
         )
 
+        // Compact countdown always renders the countdown inline, otherwise the
+        // status item would be empty once the title is dropped.
+        let layout: StatusBarTitleLayout = settings.title.compactCountdown
+            ? .inline(showTime: true)
+            : titleLayout(timeDisplay: settings.timeDisplay, titleFormat: settings.title.titleFormat)
+
         return StatusBarPresentation(
             mode: mode,
             title: text.title,
             time: text.time,
             tooltip: nextEvent.title,
             icon: icon,
-            layout: titleLayout(timeDisplay: settings.timeDisplay, titleFormat: settings.title.titleFormat),
+            layout: layout,
             titleStyle: titleStyle(
                 participation: nextEvent.participation,
-                layout: titleLayout(timeDisplay: settings.timeDisplay, titleFormat: settings.title.titleFormat),
+                layout: layout,
                 pendingDisplay: settings.pendingDisplay,
                 tentativeDisplay: settings.tentativeDisplay
             ),
@@ -243,12 +249,19 @@ struct StatusBarTitleLabels: Equatable {
     let noTitle: String
     let activeEventTimeFormat: String
     let upcomingEventTimeFormat: String
+    /// Formats used when `StatusBarTitleSettings.compactCountdown` is on,
+    /// e.g. "in 10m" / "10m left".
+    var compactActiveEventTimeFormat: String = "%@ left"
+    var compactUpcomingEventTimeFormat: String = "in %@"
 }
 
 struct StatusBarTitleSettings: Equatable {
     let titleFormat: StatusBarEventTitleFormat
     let titleLength: Int
     let labels: StatusBarTitleLabels
+    /// Drop the event title and show only a short countdown
+    /// ("in 10m" before the event, "10m left" while it runs).
+    var compactCountdown: Bool = false
 }
 
 struct StatusBarTitleText: Equatable {
@@ -267,11 +280,20 @@ enum StatusBarTitlePolicy {
         now: Date,
         calendar: Calendar
     ) -> StatusBarTitleText {
-        let title = formattedTitle(rawTitle, settings: settings)
+        let title = settings.compactCountdown ? "" : formattedTitle(rawTitle, settings: settings)
         let isActiveEvent = startDate <= now && endDate > now
         let eventDate = isActiveEvent ? endDate : startDate
         let timeLeft = formattedTimeLeft(from: now.addingTimeInterval(-60), to: eventDate, calendar: calendar)
-        let timeFormat = isActiveEvent ? settings.labels.activeEventTimeFormat : settings.labels.upcomingEventTimeFormat
+        let timeFormat: String
+        if settings.compactCountdown {
+            timeFormat = isActiveEvent
+                ? settings.labels.compactActiveEventTimeFormat
+                : settings.labels.compactUpcomingEventTimeFormat
+        } else {
+            timeFormat = isActiveEvent
+                ? settings.labels.activeEventTimeFormat
+                : settings.labels.upcomingEventTimeFormat
+        }
         let time = String(format: timeFormat, timeLeft)
         return StatusBarTitleText(title: title, time: time, isActiveEvent: isActiveEvent)
     }
